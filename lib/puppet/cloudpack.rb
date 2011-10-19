@@ -737,7 +737,7 @@ module Puppet::CloudPack
           Timeout::Error                 => "Connection test timed-out.\nThis may be because the machine is booting.  Retrying the connection..."
       }
 
-      Puppet::CloudPack::Utils.retry_action( :timeout => 25, :retry_exceptions => retry_exceptions ) do 
+      Puppet::CloudPack::Utils.retry_action( :timeout => 250, :retry_exceptions => retry_exceptions ) do 
         Timeout::timeout(25) do
           ssh_remote_execute(server, login, "date", keyfile)
         end
