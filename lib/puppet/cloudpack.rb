@@ -2,6 +2,7 @@ require 'tempfile'
 require 'rubygems'
 require 'guid'
 require 'fog'
+require 'json'
 require 'net/ssh'
 require 'puppet/network/http_pool'
 require 'puppet/cloudpack/progressbar'
@@ -27,6 +28,35 @@ module Puppet::CloudPack
         EOT
      end
     end
+
+    def add_attach_volume_options(action)
+      add_availability_zone_option(action)
+
+      action.option '--device=' do
+        summary 'The device to attach the volume to on the instance'
+      end
+
+      action.option '--instance-id=' do
+        summary 'The id of the instance to attach the volume to'
+      end
+
+      action.option '--volume-id=' do
+        summary 'The id of the volume to attah to the instance'
+      end
+    end
+
+    def add_create_volume_options(action)
+      add_availability_zone_option(action)
+
+      action.option '--size=', '-s=' do
+        summary 'The size (in GB) of the volume to create'
+      end
+
+      action.option '--snapshot=' do
+        summary 'The snapshot to base the volume on'
+      end
+    end
+
     def add_region_option(action)
       action.option '--region=' do
         summary "The geographic region of the instance. Defaults to us-east-1."
@@ -1055,6 +1085,50 @@ module Puppet::CloudPack
         # assuming that everything else is a valid filepath
         :file_path
       end
+    end
+
+    def create_volume(options, connection = nil)
+      options = merge_default_options(options)
+      Puppet.notice('Creating EBS volume ...')
+
+      if connection.nil?
+        connection = create_connection(options)
+      end
+
+      unless options[:snapshot].nil?
+        volume = connection.create_volume(options[:availability_zone], options[:size], options[:snapshot])
+      else
+        volume = connection.create_volume(options[:availability_zone], options[:size])
+      end
+
+      volume.body
+    end
+
+    def list_volumes(options, connection = nil)
+      options = merge_default_options(options)
+      
+      if connection.nil?
+        connection = create_connection(options)
+      end
+
+      volumes = Hash.new
+      connection.volumes.each do |volume|
+        attrs = { :id => volume.id, :availability_zone => volume.availability_zone, :size => volume.size, :state => volume.state }
+        unless volume.device.nil?
+          attrs.merge!({ :device => volume.device, :server_id => volume.server_id })
+        end
+        unless volume.snapshot_id.nil?
+          attrs.merge!({ :snapshot_id => volume.snapshot_id })
+        end
+        volumes[volume.id] = attrs
+      end
+      volumes
+    end
+
+    def attach_volume(options, connection = nil)
+      options = merge_default_options(options)
+
+      connection.attach_volume options[:instance_id], options[:volume_id], options[:device]
     end
 
     # Method to make generic, SSL, Authenticated HTTP requests
