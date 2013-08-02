@@ -399,7 +399,7 @@ describe Puppet::CloudPack do
             path == '/node_groups.json' && action =~ /list groups/i
           end.returns(response_node_groups)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /list group members/i
+            path == '/node_group_memberships.json' && action =~ /list group members/i
           end.returns(response_node_group_members_already_registered)
           Puppet::Face[:node, :current].classify('certname', :node_group => 'foo')
         end
@@ -422,7 +422,7 @@ describe Puppet::CloudPack do
             path == '/node_groups.json' && action =~ /list groups/i
           end.returns(response_node_groups)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /list group members/i
+            path == '/node_group_memberships.json' && action =~ /list group members/i
           end.returns(response_node_group_members_already_registered)
           subject.classify('certname', options)
         end
@@ -438,7 +438,7 @@ describe Puppet::CloudPack do
             path == '/node_groups.json' && action =~ /list groups/i
           end.returns(response_node_groups)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /list group members/i
+            path == '/node_group_memberships.json' && action =~ /list group members/i
           end.returns(response_node_group_members_already_registered)
           subject.classify('certname', options)
         end
@@ -450,10 +450,10 @@ describe Puppet::CloudPack do
             path == '/node_groups.json' && action =~ /list groups/i
           end.returns(response_node_groups)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /list group members/i
+            path == '/node_group_memberships.json' && action =~ /list group members/i
           end.returns(response_node_group_members_already_registered)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /Classify node/i
+            path == '/node_group_memberships.json' && action =~ /Classify node/i
           end.never # <= This is the key expectation
           subject.classify('certname', options)
         end
@@ -465,10 +465,10 @@ describe Puppet::CloudPack do
             path == '/node_groups.json' && action =~ /list groups/i
           end.returns(response_node_groups)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /list group members/i
+            path == '/node_group_memberships.json' && action =~ /list group members/i
           end.returns(response_node_group_members_not_registered)
           subject.expects(:http_request).with() do |http, path, options, action, expected_code, data|
-            path == '/memberships.json' && action =~ /Classify node/i
+            path == '/node_group_memberships.json' && action =~ /Classify node/i
           end # <= This is the key expectation
           subject.classify('certname', options)
         end

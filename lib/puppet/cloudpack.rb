@@ -580,10 +580,10 @@ module Puppet::CloudPack
       # Finally add the node to the group.
       notfound_associate_node = lambda do
         data = { 'node_name' => certname, 'group_name' => options[:node_group] }
-        http_request(http, '/memberships.json', options, 'Classify node', '201', data)
+        http_request(http, '/node_group_memberships.json', options, 'Classify node', '201', data)
       end
 
-      memberships = http_request(http, '/memberships.json', options, 'List group members')
+      memberships = http_request(http, '/node_group_memberships.json', options, 'List group members')
       response = memberships.find(notfound_associate_node) do |members|
         members['node_group_id'] == node_group_id and members['node_id'] == node_id
       end
